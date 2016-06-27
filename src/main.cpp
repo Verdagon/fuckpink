@@ -23,8 +23,8 @@
 using std::runtime_error;
 
 
-
-int main() {
+template<typename FunctionType>
+void doCrazySDLThings(FunctionType callback) {
 	//Initialize SDL
 	if( SDL_Init( SDL_INIT_VIDEO ) < 0 )
 		throw runtime_error(concat("SDL could not initialize! SDL Error: ", SDL_GetError()));
@@ -88,14 +88,7 @@ int main() {
 			}
 		}
 
-		float red = .5;
-		float green = .8;
-		float blue = .3;
-		glClearColor(red, green, blue, 1.0);
-		check_gl_error();
-
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		check_gl_error();
+		callback();
 
 		SDL_GL_SwapWindow( gWindow );
 	}
@@ -110,4 +103,17 @@ int main() {
 
 	//Quit SDL subsystems
 	SDL_Quit();
+}
+
+int main() {
+	doCrazySDLThings([&]{
+		float red = .5;
+		float green = .8;
+		float blue = .3;
+		glClearColor(red, green, blue, 1.0);
+		check_gl_error();
+
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		check_gl_error();
+	});
 }
