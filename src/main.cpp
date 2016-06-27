@@ -21,9 +21,10 @@
 #include <cmath>
 
 using std::runtime_error;
+using function;
 
 
-void doCrazySDLThings(std::function<void(std::function<void(std::function<void()>)>)> onceSetUpCallback) {
+void doCrazySDLThings(function<void(function<void(function<void()>)>)> onceSetUpCallback) {
 	//Initialize SDL
 	if( SDL_Init( SDL_INIT_VIDEO ) < 0 )
 		throw runtime_error(concat("SDL could not initialize! SDL Error: ", SDL_GetError()));
@@ -68,7 +69,7 @@ void doCrazySDLThings(std::function<void(std::function<void(std::function<void()
 
 	check_gl_error();
 
-	onceSetUpCallback([&](std::function<void()> render){
+	onceSetUpCallback([&](function<void()> render){
 		for (bool quit = false; !quit; ) {
 			//Handle events on queue
 			for (SDL_Event e; SDL_PollEvent(&e) != 0; ) {
@@ -107,7 +108,7 @@ void doCrazySDLThings(std::function<void(std::function<void(std::function<void()
 }
 
 int main() {
-	doCrazySDLThings([&](std::function<void(std::function<void()>)> renderLoop){
+	doCrazySDLThings([&](function<void(function<void()>)> renderLoop){
 		renderLoop([&]{
 			float red = .5;
 			float green = .8;
