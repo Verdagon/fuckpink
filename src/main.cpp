@@ -65,39 +65,45 @@ int main() {
 	if( SDL_GL_SetSwapInterval( 1 ) < 0 )
 		printf( "Warning: Unable to set VSync! SDL Error: %s\n", SDL_GetError() );
 
-
-
 	SDL_StartTextInput();
 
-
-
-
-
 	check_gl_error();
 
-	float red = .5;
-	float green = .8;
-	float blue = .3;
-	glClearColor(red, green, blue, 1.0);
-	check_gl_error();
+	for (bool quit = false; !quit; ) {
+		//Handle events on queue
+		for (SDL_Event e; SDL_PollEvent(&e) != 0; ) {
+			if (e.type == SDL_QUIT) {
+				quit = true;
+			} else if (e.type == SDL_KEYDOWN) {
+				auto keyPressed = e.key.keysym.sym;
+				std::cout << "key down! " << keyPressed << std::endl;
+			} else if (e.type == SDL_MOUSEWHEEL) {
+				std::cout << "scroll! " << e.wheel.x << e.wheel.y << std::endl;
+			} else if(e.type == SDL_MOUSEBUTTONDOWN) {
+				std::cout << "mouse button down!" << std::endl;
+			} else if(e.type == SDL_MOUSEBUTTONUP) {
+				std::cout << "mouse button up!" << std::endl;
+			} else if(e.type == SDL_MOUSEMOTION) {
+				std::cout << "mouse moved!" << std::endl;
+			}
+		}
 
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	check_gl_error();
+		float red = .5;
+		float green = .8;
+		float blue = .3;
+		glClearColor(red, green, blue, 1.0);
+		check_gl_error();
 
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		check_gl_error();
 
-	SDL_GL_SwapWindow( gWindow );
-
-	char moo;
-	std::cin >> moo;
+		SDL_GL_SwapWindow( gWindow );
+	}
 
 	//Destroy window	
 	SDL_DestroyWindow( gWindow );
 	check_gl_error();
 	gWindow = NULL;
-
-
-
-
 
 	//Disable text input
 	SDL_StopTextInput();
