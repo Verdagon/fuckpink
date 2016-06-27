@@ -23,8 +23,7 @@
 using std::runtime_error;
 
 
-template<typename FunctionType>
-void doCrazySDLThings(FunctionType callback) {
+void doCrazySDLThings(std::function<void(std::function<void(std::function<void()>)>)> onceSetUpCallback) {
 	//Initialize SDL
 	if( SDL_Init( SDL_INIT_VIDEO ) < 0 )
 		throw runtime_error(concat("SDL could not initialize! SDL Error: ", SDL_GetError()));
@@ -69,29 +68,31 @@ void doCrazySDLThings(FunctionType callback) {
 
 	check_gl_error();
 
-	for (bool quit = false; !quit; ) {
-		//Handle events on queue
-		for (SDL_Event e; SDL_PollEvent(&e) != 0; ) {
-			if (e.type == SDL_QUIT) {
-				quit = true;
-			} else if (e.type == SDL_KEYDOWN) {
-				auto keyPressed = e.key.keysym.sym;
-				std::cout << "key down! " << keyPressed << std::endl;
-			} else if (e.type == SDL_MOUSEWHEEL) {
-				std::cout << "scroll! " << e.wheel.x << e.wheel.y << std::endl;
-			} else if(e.type == SDL_MOUSEBUTTONDOWN) {
-				std::cout << "mouse button down!" << std::endl;
-			} else if(e.type == SDL_MOUSEBUTTONUP) {
-				std::cout << "mouse button up!" << std::endl;
-			} else if(e.type == SDL_MOUSEMOTION) {
-				std::cout << "mouse moved!" << std::endl;
+	onceSetUpCallback([&](std::function<void()> render){
+		for (bool quit = false; !quit; ) {
+			//Handle events on queue
+			for (SDL_Event e; SDL_PollEvent(&e) != 0; ) {
+				if (e.type == SDL_QUIT) {
+					quit = true;
+				} else if (e.type == SDL_KEYDOWN) {
+					auto keyPressed = e.key.keysym.sym;
+					std::cout << "key down! " << keyPressed << std::endl;
+				} else if (e.type == SDL_MOUSEWHEEL) {
+					std::cout << "scroll! " << e.wheel.x << e.wheel.y << std::endl;
+				} else if(e.type == SDL_MOUSEBUTTONDOWN) {
+					std::cout << "mouse button down!" << std::endl;
+				} else if(e.type == SDL_MOUSEBUTTONUP) {
+					std::cout << "mouse button up!" << std::endl;
+				} else if(e.type == SDL_MOUSEMOTION) {
+					std::cout << "mouse moved!" << std::endl;
+				}
 			}
+
+			render();
+
+			SDL_GL_SwapWindow( gWindow );
 		}
-
-		callback();
-
-		SDL_GL_SwapWindow( gWindow );
-	}
+	});
 
 	//Destroy window	
 	SDL_DestroyWindow( gWindow );
@@ -106,14 +107,16 @@ void doCrazySDLThings(FunctionType callback) {
 }
 
 int main() {
-	doCrazySDLThings([&]{
-		float red = .5;
-		float green = .8;
-		float blue = .3;
-		glClearColor(red, green, blue, 1.0);
-		check_gl_error();
+	doCrazySDLThings([&](std::function<void(std::function<void()>)> renderLoop){
+		renderLoop([&]{
+			float red = .5;
+			float green = .8;
+			float blue = .3;
+			glClearColor(red, green, blue, 1.0);
+			check_gl_error();
 
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		check_gl_error();
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			check_gl_error();
+		});
 	});
 }
