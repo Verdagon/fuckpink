@@ -21,7 +21,7 @@
 #include <cmath>
 
 using std::runtime_error;
-using function;
+using std::function;
 
 
 void doCrazySDLThings(function<void(function<void(function<void()>)>)> onceSetUpCallback) {
